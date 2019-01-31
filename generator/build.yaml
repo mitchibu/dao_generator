@@ -1,0 +1,15 @@
+targets:
+  $default:
+    builders:
+      dao_generator|dao_generator_annotation:
+        enabled: true
+
+builders:
+  dao_generator:
+    target: ":dao_generator"
+    import: "package:dao_generator/builder.dart"
+    builder_factories: ["genarator"]
+    build_extensions: {".dart": [".dao_generator.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
