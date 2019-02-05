@@ -8,6 +8,7 @@ import 'package:source_gen/source_gen.dart';
 import 'package:dao_generator_annotation/annotation.dart';
 
 import 'entity_generator.dart';
+import 'utils.dart';
 
 String generateDaoClassName(String className) => '_\$$className';
 
@@ -36,12 +37,12 @@ class DaoGenerator extends GeneratorForAnnotation<Dao> {
 
       if(method.isAbstract && method.returnType.isDartAsyncFuture) {
         ElementAnnotation annotation;
-        if((annotation = _findAnnotation(method, Query)) != null) _generateMethod(buffer, method, annotation, SqlType.Query);
-        else if((annotation = _findAnnotation(method, Insert)) != null) _generateMethod(buffer, method, annotation, SqlType.Insert);
-        else if((annotation = _findAnnotation(method, Update)) != null) _generateMethod(buffer, method, annotation, SqlType.Update);
-        else if((annotation = _findAnnotation(method, Delete)) != null) _generateMethod(buffer, method, annotation, SqlType.Delete);
+        if((annotation = findAnnotation(method, Query)) != null) _generateMethod(buffer, method, annotation, SqlType.Query);
+        else if((annotation = findAnnotation(method, Insert)) != null) _generateMethod(buffer, method, annotation, SqlType.Insert);
+        else if((annotation = findAnnotation(method, Update)) != null) _generateMethod(buffer, method, annotation, SqlType.Update);
+        else if((annotation = findAnnotation(method, Delete)) != null) _generateMethod(buffer, method, annotation, SqlType.Delete);
       } else {
-        ElementAnnotation annotation = _findAnnotation(method, Transaction);
+        ElementAnnotation annotation = findAnnotation(method, Transaction);
         if(annotation != null) {
           _generateTransactionMethod(buffer, method);
         }
@@ -52,15 +53,6 @@ class DaoGenerator extends GeneratorForAnnotation<Dao> {
   }
 
   List<DartType> _getGenericTypes(DartType type) => type is ParameterizedType ? type.typeArguments : const [];
-  bool _checkType(DartType dartType, Type type) => TypeChecker.fromRuntime(type).isAssignableFromType(dartType);
-
-  ElementAnnotation _findAnnotation(MethodElement method, Type target) {
-    try {
-    return method.metadata.firstWhere((annotation) => _checkType(annotation.constantValue.type, target));
-    } catch(e) {
-      return null;
-    }
-  }
 
   void _generateMethod(StringBuffer buffer, MethodElement method, ElementAnnotation annotation, SqlType sqlType) {
     DartObject object = annotation.constantValue.getField('sql');

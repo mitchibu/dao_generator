@@ -11,6 +11,15 @@ class Entity {
   const Entity();
 }
 
+class PrimaryKey {
+  const PrimaryKey();
+}
+
+class ColumnInfo {
+  final String name;
+  const ColumnInfo({this.name});
+}
+
 class Dao {
   const Dao();
 }
@@ -36,5 +45,6 @@ class Delete {
 }
 
 class Transaction {
-  const Transaction();
+  final List<String> sqls;
+  const Transaction(this.sqls);
 }

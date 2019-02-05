@@ -8,14 +8,14 @@ part of 'db.dart';
 
 //Type (Account)
 //Account
-//$AccountSql
+//$getAccountCreateTable
 MyDatabase openMyDatabase({String path = ':memory:'}) => _$MyDatabase(path);
 
 class _$MyDatabase extends MyDatabase {
   final DatabaseHelper _helper;
   _$MyDatabase(String path)
       : _helper = DatabaseHelper(path, 1, (db, version) async {
-          await db.execute($AccountSql);
+          await db.execute($getAccountCreateTable);
         });
   @override
   AccountDao accountDao() {
@@ -27,32 +27,24 @@ class _$MyDatabase extends MyDatabase {
 // EntityGenerator
 // **************************************************************************
 
-String get $AccountSql => 'create table Account('
-    'id integer'
+String get $getAccountCreateTable => 'create table Account('
+    'test_name integer primary key'
     ',name text'
     ')';
-Account getAccountFromMap(Map<String, dynamic> map, {prefix = ''}) {
+Account $getAccountFromMap(Map<String, dynamic> map, {prefix = ''}) {
   var entity = Account();
   entity.id = map['${prefix}id'];
   entity.name = map['${prefix}name'];
   return entity;
 }
 
-List<Account> getAccountFromList(List<Map<String, dynamic>> maps,
-    {prefix = ''}) {
-  List<Account> entities = [];
-  maps.forEach((map) {
-    entities.add(getAccountFromMap(map, prefix: prefix));
-  });
-  return entities;
-}
-
-Map<String, dynamic> getAccountToMap(Account entity) {
-  return {
-    'id': entity.id,
-    'name': entity.name,
-  };
-}
+List<Account> $getAccountFromList(List<Map<String, dynamic>> maps,
+        {prefix = ''}) =>
+    maps.map((map) => $getAccountFromMap(map, prefix: prefix));
+Map<String, dynamic> $getAccountToMap(Account entity) => {
+      'id': entity.id,
+      'name': entity.name,
+    };
 
 // **************************************************************************
 // DaoGenerator
@@ -65,7 +57,7 @@ class _$AccountDao extends AccountDao {
   Future<List<Account>> getAll() async {
     var executor = await _helper.getExecutor();
     var result = await executor.query('select * from Account');
-    return getAccountFromList(result);
+    return $getAccountFromList(result);
   }
 
   @override
@@ -73,7 +65,7 @@ class _$AccountDao extends AccountDao {
     var executor = await _helper.getExecutor();
     var result =
         await executor.query('select * from Account where id=$id limit 1');
-    var entities = getAccountFromList(result);
+    var entities = $getAccountFromList(result);
     return entities.isEmpty ? null : entities[0];
   }
 
@@ -85,7 +77,5 @@ class _$AccountDao extends AccountDao {
   }
 
   @override
-  Future<dynamic> insertAll(List<Account> accounts) {
-    return _helper.transaction((action) => super.insertAll(accounts));
-  }
+  Future<dynamic> insertAll(List<Account> accounts) {}
 }

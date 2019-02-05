@@ -20,6 +20,8 @@ abstract class MyDatabase {
 
 @Entity()
 class Account {
+  @PrimaryKey()
+  @ColumnInfo(name: 'test_name')
   int id;
   String name;
 }
@@ -35,7 +37,8 @@ abstract class AccountDao {
   @Insert('insert into Account(id, name) values(\${account.id}, \\\'\${account.name}\\\')')
   Future<int> insert(Account account);
 
-  @Transaction()
+  @Transaction([
+  ])
   Future insertAll(List<Account> accounts) {
     accounts.forEach((account) async {
       await insert(account);
